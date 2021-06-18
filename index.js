@@ -51,14 +51,29 @@ function drawCircle(center, radius, color) {
   ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.fill();
+  ctx.stroke();
 }
 
 function drawCircleInCell(r, c, color) {
-  drawCircle({x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize /  2}, cellSize / 5, color);
+  if(ballCount[r][c] === 1) {
+    drawCircle({x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize /  2}, cellSize / 5, color);
+  } else if(ballCount[r][c] === 2) {
+    drawCircle({x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize /  3}, cellSize / 5, color);
+    drawCircle({x: c * cellSize + cellSize / 2, y: r * cellSize + ((2 * cellSize) /  3)}, cellSize / 5, color);
+  } else if(ballCount[r][c] === 3) {
+    drawCircle({x: c * cellSize + cellSize / 2.8, y: r * cellSize + cellSize /  3}, cellSize / 5, color);
+    drawCircle({x: c * cellSize + cellSize / 2.8, y: r * cellSize + ((2 * cellSize) /  3)}, cellSize / 5, color);
+    drawCircle({x: c * cellSize + cellSize / 1.5, y: r * cellSize + cellSize /  2}, cellSize / 5, color);
+  }
   window.requestAnimationFrame(new Function());
 }
 
+function explode(r, c) {
+  console.log('this cell should be exploded by now !!!');
+}
+
 function makeGrid() {
+  ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, gridWidth, gridHeight);
 
 // draw vertical lines
@@ -95,10 +110,16 @@ function makeGrid() {
 
 makeGrid();
 
-canvas.addEventListener('click', (e) => {
-  // get row and col number
-  // first get the x and y coordinates of the canvas
+function resetAndUpdateGrid() {
+  makeGrid();
+  for(let i = 0; i < row; i++) {
+    for(let j = 0; j < col; j++) {
+      drawCircleInCell(i, j, 'red');
+    }
+  }
+}
 
+canvas.addEventListener('click', (e) => {
   const canvasCo = {
     x: e.clientX - (paddingLeft + marginLeft + gridStart.x),
     y: e.clientY - (paddingTop + marginTop + gridStart.y)
@@ -107,6 +128,8 @@ canvas.addEventListener('click', (e) => {
   const clickedCol = Math.floor(canvasCo.x / cellSize), clickedRow = Math.floor(canvasCo.y / cellSize);
   console.log(clickedRow, clickedCol);
   if(clickedRow < row && clickedCol < col) {
-    drawCircleInCell(clickedRow, clickedCol, 'red');
+    ballCount[clickedRow][clickedCol]++;
   }
+
+  resetAndUpdateGrid();
 });
