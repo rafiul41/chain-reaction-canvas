@@ -13,10 +13,31 @@ const gridStart = {
   x: paddingLeft, y: paddingTop
 };
 const gridHeight = 600, gridWidth = 600;
-const row = 5, col = 5;
+const row = 6, col = 6;
 
 // Cell will be square
 const cellSize = 100;
+
+const ballCount = {};
+
+for(let i = 0; i < row; i++) {
+  ballCount[i] = {};
+  for(let j = 0; j < col; j++) {
+    ballCount[i][j] = 0;
+  }
+}
+
+// Utility functions
+
+function isCorner(r, c) {
+  return (r === 0 && c === 0) || (r === 0 && c === col - 1)
+    || (r === row - 1 && c === 0) || (r === row - 1 && c === col - 1);
+}
+
+function isEdge(r, c) {
+  return (r === 0 && c > 0 && c < col - 1) || (r === row - 1 && c > 0 && c < col - 1)
+    || (c === 0 && r > 0 && r < row - 1) || (c === col - 1 && r > 0 && r < row - 1);
+}
 
 function drawLine(start, end) {
   ctx.beginPath();
@@ -30,6 +51,11 @@ function drawCircle(center, radius, color) {
   ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.fill();
+}
+
+function drawCircleInCell(r, c, color) {
+  drawCircle({x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize /  2}, cellSize / 5, color);
+  window.requestAnimationFrame(new Function());
 }
 
 function makeGrid() {
@@ -68,11 +94,6 @@ function makeGrid() {
 }
 
 makeGrid();
-
-function drawCircleInCell(row, col, color) {
-  drawCircle({x: col * cellSize + cellSize / 2, y: row * cellSize + cellSize / 2}, cellSize / 5, color);
-  window.requestAnimationFrame(new Function());
-}
 
 canvas.addEventListener('click', (e) => {
   // get row and col number
