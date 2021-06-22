@@ -1,0 +1,7 @@
+<div>
+  <label>
+    DisplayName:
+    <input [(ngModel)]="displayName" type="text" (keyup.enter)="navigateToHome()">
+  </label>
+  <button [disabled]="displayName.length === 0" (click)="navigateToHome()">Login</button>
+</div>

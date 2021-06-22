@@ -1,0 +1,7 @@
+<div>
+  <div id="chats">
+    <div>BOT: {{displayName}}, Welcome to the chat</div>
+  </div>
+  <input [(ngModel)]="message" type="text" (keyup.enter)="sendMessage()">
+  <button (click)="sendMessage()">Send</button>
+</div>

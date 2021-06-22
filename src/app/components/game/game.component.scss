@@ -1,0 +1,12 @@
+.canvases-wrapper {
+  position: relative;
+}
+
+#canvas {
+  position: absolute;
+}
+
+#transition-canvas {
+  position: absolute;
+  z-index: -1;
+}
