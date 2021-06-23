@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-game',
@@ -10,12 +10,12 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   // Margin of the canvas element
   marginLeft = 0;
-  marginTop = 18;
+  marginTop = 0;
 
   gridStart: any = {};
 
-  gridHeight = 600;
-  gridWidth = 600;
+  gridHeight = 0;
+  gridWidth = 0;
   row = 6;
   col = 6;
 
@@ -33,6 +33,7 @@ export class GameComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.setGridSize();
     this.gridStart = {
       x: 0, y: 0
     };
@@ -44,10 +45,26 @@ export class GameComponent implements OnInit, AfterViewInit {
     }
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResizeWindow() {
+    const canvasWrapper = <HTMLElement>document.getElementById('canvases-wrapper');
+    this.gridStart.x = canvasWrapper.getBoundingClientRect().left;
+    this.gridStart.y = canvasWrapper.getBoundingClientRect().top;
+  }
+
   ngAfterViewInit() {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
+    canvas.onselectstart = () => { return false};
     this.initCanvasses();
+    const canvasWrapper = <HTMLElement>document.getElementById('canvases-wrapper');
+    canvasWrapper.style.marginLeft = `-${this.gridWidth}px`;
+    this.onResizeWindow();
+  }
+
+  setGridSize() {
+    this.gridWidth = this.cellSize * this.col;
+    this.gridHeight = this.cellSize * this.row;
   }
 
   initCanvasses() {

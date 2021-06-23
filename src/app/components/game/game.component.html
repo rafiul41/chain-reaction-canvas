@@ -1,4 +1,6 @@
-<div class="canvases-wrapper">
-  <canvas (click)="onCellClick($event)" id="canvas" width="600" height="600"></canvas>
-  <canvas id="transition-canvas" width="600" height="600"></canvas>
+<div class="game-wrapper">
+  <div style="margin-top: 100px" id="canvases-wrapper">
+    <canvas (click)="onCellClick($event)" id="canvas" [width]="gridWidth" [height]="gridHeight"></canvas>
+    <canvas id="transition-canvas" [width]="gridWidth" [height]="gridHeight"></canvas>
+  </div>
 </div>

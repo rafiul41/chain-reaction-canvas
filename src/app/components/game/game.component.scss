@@ -1,4 +1,11 @@
-.canvases-wrapper {
+.game-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+#canvases-wrapper {
   position: relative;
 }
 
