@@ -7,6 +7,10 @@ import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 })
 export class GameComponent implements OnInit, AfterViewInit {
   ctx: any;
+  transitionCtx: any = {};
+  canvas: any = {};
+  transitionCanvas: any = {};
+  transitionRequest: any = {};
 
   // Margin of the canvas element
   marginLeft = 0;
@@ -53,9 +57,12 @@ export class GameComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-    this.ctx = canvas.getContext('2d');
-    canvas.onselectstart = () => { return false};
+    this.canvas = <HTMLCanvasElement>document.getElementById('canvas');
+    this.transitionCanvas = <HTMLCanvasElement>document.getElementById('transition-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.transitionCtx = this.transitionCanvas.getContext('2d');
+    this.canvas.onselectstart = () => { return false};
+    this.transitionCanvas.onselectionchange = () => {return false};
     this.initCanvasses();
     const canvasWrapper = <HTMLElement>document.getElementById('canvases-wrapper');
     canvasWrapper.style.marginLeft = `-${this.gridWidth}px`;
@@ -138,7 +145,33 @@ export class GameComponent implements OnInit, AfterViewInit {
     }
   }
 
-  updateCellsBFS(r: number, c: number) {
+  renderTransition() {
+    let r = 100, c = 100;
+    return new Promise((resolve) => {
+      const intervalId = setInterval(() => {
+        this.transitionCtx.clearRect(0, 0, this.gridWidth, this.gridHeight);
+        this.transitionCtx.beginPath();
+        this.transitionCtx.arc(r, c, 20, 0, Math.PI * 2);
+        r += 10;c += 10;
+        if(r > 300) {
+          clearInterval(intervalId);
+          resolve();
+        }
+        this.transitionCtx.fillStyle = 'red';
+        this.transitionCtx.fill();
+        this.transitionCtx.stroke();
+        this.transitionRequest = requestAnimationFrame(this.renderTransition.bind(r + 1, c));
+      }, 15);
+    });
+  }
+
+  async renderTransitions() {
+    this.transitionCanvas.style.zIndex = '10';
+    await this.renderTransition();
+    this.transitionCanvas.style.zIndex = '-1';
+  }
+
+  async updateCellsBFS(r: number, c: number) {
     const queue = [];
     queue.push({r, c});
 
@@ -171,7 +204,7 @@ export class GameComponent implements OnInit, AfterViewInit {
         this.cellsToUpdate.push({r: front.r, c: front.c});
       }
       this.renderUpdatedCells();
-      // renderTransitions();
+      await this.renderTransitions();
     }
   }
 
