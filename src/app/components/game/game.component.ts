@@ -1,4 +1,6 @@
+// @ts-ignore
 import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
+import { ContextService } from 'src/app/services/context.service';
 
 @Component({
   selector: 'app-game',
@@ -33,7 +35,9 @@ export class GameComponent implements OnInit, AfterViewInit {
   cellsToUpdate: any = [];
   transitions: any = [];
 
-  constructor() {
+  constructor(
+    private contextService: ContextService
+  ) {
   }
 
   ngOnInit() {
@@ -77,26 +81,10 @@ export class GameComponent implements OnInit, AfterViewInit {
   initCanvasses() {
     for(let i = 0; i < this.row; i++) {
       for(let j = 0; j < this.col; j++) {
-        this.resetCell(i, j);
+        this.contextService.resetCell(this.ctx, i, j, this.cellSize);
       }
     }
-
     this.ctx.strokeRect(0, 0, this.gridWidth, this.gridHeight);
-  }
-
-  blackenCell(r: number, c: number) {
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(c * this.cellSize, r * this.cellSize, this.cellSize, this.cellSize);
-  }
-
-  borderCell(r: number, c: number) {
-    this.ctx.strokeStyle = 'white';
-    this.ctx.strokeRect(c * this.cellSize, r * this.cellSize, this.cellSize, this.cellSize);
-  }
-
-  resetCell(r: number, c: number) {
-    this.blackenCell(r, c);
-    this.borderCell(r, c);
   }
 
   isCorner(r: number, c: number) {
@@ -117,50 +105,53 @@ export class GameComponent implements OnInit, AfterViewInit {
     return ((this.isCorner(r, c) && this.ballCount[r][c] > 1) || (this.isEdge(r, c) && this.ballCount[r][c] > 2) || (this.ballCount[r][c] > 3));
   }
 
-  drawCircle(center: any, radius: number, color: string) {
-    this.ctx.beginPath();
-    this.ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
-    this.ctx.fillStyle = color;
-    this.ctx.fill();
-    this.ctx.stroke();
-  }
-
   drawCircleInCell(r: number, c: number, color: string) {
     if(this.ballCount[r][c] === 1) {
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
     } else if(this.ballCount[r][c] === 2) {
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
     } else if(this.ballCount[r][c] === 3) {
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
-      this.drawCircle({x: c * this.cellSize + this.cellSize / 1.5, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 1.5, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
     }
   }
 
   renderUpdatedCells() {
     for(let i = 0; i < this.cellsToUpdate.length; i++) {
-      this.resetCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c);
+      this.contextService.resetCell(this.ctx, this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.cellSize);
       this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, 'red');
     }
   }
-
+  
   renderTransition() {
-    let r = 100, c = 100;
+    if(this.transitions.length === 0) {
+      return Promise.resolve();
+    }
+    let steps = 10;
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         this.transitionCtx.clearRect(0, 0, this.gridWidth, this.gridHeight);
-        this.transitionCtx.beginPath();
-        this.transitionCtx.arc(r, c, 20, 0, Math.PI * 2);
-        r += 10;c += 10;
-        if(r > 300) {
+        for(let i = 0; i < this.transitions.length; i++) {
+          for(let j  = 0; j < this.transitions[i].to.length; j++) {
+            const from = this.transitions[i].from, to = this.transitions[i].to[j];
+            const x = from.c === to.c
+              ? (from.c * this.cellSize + (this.cellSize / 2))
+              : (from.c > to.c ? ((from.c * this.cellSize) + this.cellSize / 2 - steps)
+                : ((from.c * this.cellSize) + (this.cellSize / 2 + steps)));
+            const y = from.r === to.r
+              ? (from.r * this.cellSize + (this.cellSize / 2))
+              : (from.r > to.r ? ((from.r * this.cellSize) + this.cellSize / 2 - steps)
+                : ((from.r * this.cellSize) + (this.cellSize / 2 + steps)));
+            this.contextService.drawCircle(this.transitionCtx, {x, y}, this.cellSize / 5, 'red');
+          }
+        }
+        steps += 10;
+        if(steps > this.cellSize) {
           clearInterval(intervalId);
           resolve();
         }
-        this.transitionCtx.fillStyle = 'red';
-        this.transitionCtx.fill();
-        this.transitionCtx.stroke();
-        this.transitionRequest = requestAnimationFrame(this.renderTransition.bind(r + 1, c));
       }, 15);
     });
   }
