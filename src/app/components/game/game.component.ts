@@ -1,6 +1,6 @@
-// @ts-ignore
 import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import { ContextService } from 'src/app/services/context.service';
+import {isCorner, isValidCell, isEdge} from '../../shared/utility';
 
 @Component({
   selector: 'app-game',
@@ -87,22 +87,9 @@ export class GameComponent implements OnInit, AfterViewInit {
     this.ctx.strokeRect(0, 0, this.gridWidth, this.gridHeight);
   }
 
-  isCorner(r: number, c: number) {
-    return (r === 0 && c === 0) || (r === 0 && c === this.col - 1)
-      || (r === this.row - 1 && c === 0) || (r === this.row - 1 && c === this.col - 1);
-  }
-
-  isEdge(r: number, c: number) {
-    return (r === 0 && c > 0 && c < this.col - 1) || (r === this.row - 1 && c > 0 && c < this.col - 1)
-      || (c === 0 && r > 0 && r < this.row - 1) || (c === this.col - 1 && r > 0 && r < this.row - 1);
-  }
-
-  isValidCell(r: number, c: number) {
-    return r >= 0 && r < this.row && c >= 0 && c < this.col;
-  }
-
   shouldExplode(r: number, c: number) {
-    return ((this.isCorner(r, c) && this.ballCount[r][c] > 1) || (this.isEdge(r, c) && this.ballCount[r][c] > 2) || (this.ballCount[r][c] > 3));
+    return ((isCorner(r, c, this.row, this.col) && this.ballCount[r][c] > 1)
+      || (isEdge(r, c, this.row, this.col) && this.ballCount[r][c] > 2) || (this.ballCount[r][c] > 3));
   }
 
   drawCircleInCell(r: number, c: number, color: string) {
@@ -124,7 +111,7 @@ export class GameComponent implements OnInit, AfterViewInit {
       this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, 'red');
     }
   }
-  
+
   renderTransition() {
     if(this.transitions.length === 0) {
       return Promise.resolve();
@@ -185,7 +172,7 @@ export class GameComponent implements OnInit, AfterViewInit {
             let x = front.r + this.dx[i];
             let y = front.c + this.dy[i];
 
-            if(this.isValidCell(x, y)) {
+            if(isValidCell(x, y, this.row, this.col)) {
               transition.to.push({r: x, c: y});
               queue.push({r: x, c: y});
             }
