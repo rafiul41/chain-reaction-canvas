@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import { ContextService } from 'src/app/services/context.service';
 import {isCorner, isValidCell, isEdge} from '../../shared/utility';
+import {GRID_INFO, TRANSITION_INFO, GAME_INFO} from './../../shared/constant';
 
 @Component({
   selector: 'app-game',
@@ -15,18 +16,18 @@ export class GameComponent implements OnInit, AfterViewInit {
   transitionRequest: any = {};
 
   // Margin of the canvas element
-  marginLeft = 0;
-  marginTop = 0;
+  marginLeft = GRID_INFO.marginLeft;
+  marginTop = GRID_INFO.marginTop;
 
   gridStart: any = {};
 
   gridHeight = 0;
   gridWidth = 0;
-  row = 6;
-  col = 6;
+  row = GRID_INFO.row;
+  col = GRID_INFO.col;
 
   // Cell will be square
-  cellSize = 100;
+  cellSize = GRID_INFO.cellSize;
 
   dx = [0, 0, 1, -1];
   dy = [1, -1, 0, 0];
@@ -34,6 +35,12 @@ export class GameComponent implements OnInit, AfterViewInit {
   ballCount: any = {};
   cellsToUpdate: any = [];
   transitions: any = [];
+  cellColors: any = {};
+
+  players = 3;
+  colors: string[] = [];
+  currentPlayer = 0;
+  hasAllPlayersClicked = false;
 
   constructor(
     private contextService: ContextService
@@ -42,13 +49,16 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.setGridSize();
+    this.colors = GAME_INFO.colors.slice(0, this.players);
     this.gridStart = {
       x: 0, y: 0
     };
     for(let i = 0; i < this.row; i++) {
       this.ballCount[i] = {};
+      this.cellColors[i] = {};
       for(let j = 0; j < this.col; j++) {
         this.ballCount[i][j] = 0;
+        this.cellColors[i][j] = 'black';
       }
     }
   }
@@ -94,29 +104,50 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   drawCircleInCell(r: number, c: number, color: string) {
     if(this.ballCount[r][c] === 1) {
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  2},
+        this.cellSize / 5, color);
     } else if(this.ballCount[r][c] === 2) {
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  3},
+        this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + ((2 * this.cellSize) /  3)},
+        this.cellSize / 5, color);
     } else if(this.ballCount[r][c] === 3) {
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + this.cellSize /  3}, this.cellSize / 5, color);
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + ((2 * this.cellSize) /  3)}, this.cellSize / 5, color);
-      this.contextService.drawCircle(this.ctx, {x: c * this.cellSize + this.cellSize / 1.5, y: r * this.cellSize + this.cellSize /  2}, this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + this.cellSize /  3},
+        this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 2.8, y: r * this.cellSize + ((2 * this.cellSize) /  3)},
+        this.cellSize / 5, color);
+      this.contextService.drawCircle(this.ctx,
+        {x: c * this.cellSize + this.cellSize / 1.5, y: r * this.cellSize + this.cellSize /  2},
+        this.cellSize / 5, color);
     }
   }
 
   renderUpdatedCells() {
     for(let i = 0; i < this.cellsToUpdate.length; i++) {
       this.contextService.resetCell(this.ctx, this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.cellSize);
-      this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, 'red');
+      this.updateCellColors(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c);
+      this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.colors[this.currentPlayer]);
     }
+  }
+
+  updateCellColors(r: number, c: number) {
+    if(this.ballCount[r][c] === 0) {
+      this.cellColors[r][c] = 'black';
+      return;
+    }
+    this.cellColors[r][c] = this.colors[this.currentPlayer];
   }
 
   renderTransition() {
     if(this.transitions.length === 0) {
       return Promise.resolve();
     }
-    let steps = 10;
+    let steps = TRANSITION_INFO.steps;
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         this.transitionCtx.clearRect(0, 0, this.gridWidth, this.gridHeight);
@@ -131,15 +162,15 @@ export class GameComponent implements OnInit, AfterViewInit {
               ? (from.r * this.cellSize + (this.cellSize / 2))
               : (from.r > to.r ? ((from.r * this.cellSize) + this.cellSize / 2 - steps)
                 : ((from.r * this.cellSize) + (this.cellSize / 2 + steps)));
-            this.contextService.drawCircle(this.transitionCtx, {x, y}, this.cellSize / 5, 'red');
+            this.contextService.drawCircle(this.transitionCtx, {x, y}, this.cellSize / 5, this.colors[this.currentPlayer]);
           }
         }
-        steps += 10;
+        steps += TRANSITION_INFO.steps;
         if(steps > this.cellSize) {
           clearInterval(intervalId);
           resolve();
         }
-      }, 15);
+      }, TRANSITION_INFO.intervalWindow);
     });
   }
 
@@ -186,7 +217,15 @@ export class GameComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onCellClick(e: any) {
+  changePlayerTurn() {
+    this.currentPlayer++;
+    if(this.currentPlayer >= this.players) {
+      this.hasAllPlayersClicked = true;
+      this.currentPlayer = 0;
+    }
+  }
+
+  async onCellClick(e: any) {
     const canvasCo = {
       x: e.clientX - (this.marginLeft + this.gridStart.x),
       y: e.clientY - (this.marginTop + this.gridStart.y)
@@ -194,8 +233,11 @@ export class GameComponent implements OnInit, AfterViewInit {
 
     const clickedCol = Math.floor(canvasCo.x / this.cellSize), clickedRow = Math.floor(canvasCo.y / this.cellSize);
     console.log('CLICKED ROW COL:', clickedRow, clickedCol);
-    if(clickedRow < this.row && clickedCol < this.col) {
-      this.updateCellsBFS(clickedRow, clickedCol);
+    if(clickedRow < this.row && clickedCol < this.col
+      && (this.cellColors[clickedRow][clickedCol] === this.colors[this.currentPlayer])
+      || (this.cellColors[clickedRow][clickedCol] === 'black')) {
+      await this.updateCellsBFS(clickedRow, clickedCol);
+      this.changePlayerTurn();
     }
   }
 }
