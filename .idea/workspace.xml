@@ -3,8 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e8b3795f-507c-47c8-9dd0-6e9c3134331e" name="Default Changelist" comment="Some utility function">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/game/game.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/game/game.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/components/game/game.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/game/game.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/shared/constant.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/shared/constant.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,17 +65,14 @@
       <workItem from="1628257767382" duration="5702000" />
       <workItem from="1628276552033" duration="2959000" />
       <workItem from="1628295220460" duration="2627000" />
-      <workItem from="1628330491625" duration="1601000" />
+      <workItem from="1628330491625" duration="2881000" />
+      <workItem from="1628402199394" duration="18000" />
+      <workItem from="1628526051539" duration="5675000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-    <option name="exactExcludedFiles">
-      <list>
-        <option value="$PROJECT_DIR$/chain-reaction/node_modules/karma/config.tpl.js" />
-      </list>
-    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
@@ -81,9 +80,13 @@
     </ignored-roots>
   </component>
   <component name="WindowStateProjectService">
-    <state x="740" y="276" key="FileChooserDialogImpl" timestamp="1627550457294">
+    <state x="740" y="276" key="FileChooserDialogImpl" timestamp="1628402215560">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="276" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1627550457294" />
+    <state x="740" y="276" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1628402215560" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1628332241539">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1628332241539" />
   </component>
 </project>

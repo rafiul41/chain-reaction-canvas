@@ -2,6 +2,7 @@ import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import { ContextService } from 'src/app/services/context.service';
 import {isCorner, isValidCell, isEdge} from '../../shared/utility';
 import {GRID_INFO, TRANSITION_INFO, GAME_INFO} from './../../shared/constant';
+import Swal from 'sweetalert2'
 
 @Component({
   selector: 'app-game',
@@ -38,7 +39,7 @@ export class GameComponent implements OnInit, AfterViewInit {
   cellColors: any = {};
 
   players = 3;
-  colors: string[] = [];
+  colors: any = [];
   currentPlayer = 0;
   hasAllPlayersClicked = false;
 
@@ -49,7 +50,9 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.setGridSize();
-    this.colors = GAME_INFO.colors.slice(0, this.players);
+    this.colors = GAME_INFO.colors.slice(0, this.players).map(color => {
+      return {name: color, cellCount: 0};
+    });
     this.gridStart = {
       x: 0, y: 0
     };
@@ -131,16 +134,37 @@ export class GameComponent implements OnInit, AfterViewInit {
     for(let i = 0; i < this.cellsToUpdate.length; i++) {
       this.contextService.resetCell(this.ctx, this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.cellSize);
       this.updateCellColors(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c);
-      this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.colors[this.currentPlayer]);
+      this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.colors[this.currentPlayer].name);
     }
   }
 
   updateCellColors(r: number, c: number) {
+    this.updateColorCount(r, c);
     if(this.ballCount[r][c] === 0) {
       this.cellColors[r][c] = 'black';
       return;
     }
-    this.cellColors[r][c] = this.colors[this.currentPlayer];
+    this.cellColors[r][c] = this.colors[this.currentPlayer].name;
+  }
+
+  updateColorCount(r: number, c: number) {
+    const prevColorInd = this.colors.findIndex((item: any) => item.name === this.cellColors[r][c]);
+    if(prevColorInd !== -1) {
+      this.colors[prevColorInd].cellCount--;
+      if(this.ballCount[r][c] > 0) {
+        this.colors[this.currentPlayer].cellCount++;
+      }
+      if(this.colors[prevColorInd].cellCount === 0) {
+        this.colors.splice(prevColorInd, 1);
+        if(this.colors.length === 1) {
+          setTimeout(() => {
+            this.sweetAlert();
+          }, 1000);
+        }
+      }
+    } else {
+      this.colors[this.currentPlayer].cellCount++;
+    }
   }
 
   renderTransition() {
@@ -162,7 +186,7 @@ export class GameComponent implements OnInit, AfterViewInit {
               ? (from.r * this.cellSize + (this.cellSize / 2))
               : (from.r > to.r ? ((from.r * this.cellSize) + this.cellSize / 2 - steps)
                 : ((from.r * this.cellSize) + (this.cellSize / 2 + steps)));
-            this.contextService.drawCircle(this.transitionCtx, {x, y}, this.cellSize / 5, this.colors[this.currentPlayer]);
+            this.contextService.drawCircle(this.transitionCtx, {x, y}, this.cellSize / 5, this.colors[this.currentPlayer].name);
           }
         }
         steps += TRANSITION_INFO.steps;
@@ -172,6 +196,15 @@ export class GameComponent implements OnInit, AfterViewInit {
         }
       }, TRANSITION_INFO.intervalWindow);
     });
+  }
+
+  sweetAlert() {
+    Swal.fire({
+      title: 'Error!',
+      text: 'Do you want to continue',
+      icon: 'error',
+      confirmButtonText: 'Cool'
+    })
   }
 
   async renderTransitions() {
@@ -219,7 +252,7 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   changePlayerTurn() {
     this.currentPlayer++;
-    if(this.currentPlayer >= this.players) {
+    if(this.currentPlayer >= this.colors.length) {
       this.hasAllPlayersClicked = true;
       this.currentPlayer = 0;
     }
@@ -234,7 +267,7 @@ export class GameComponent implements OnInit, AfterViewInit {
     const clickedCol = Math.floor(canvasCo.x / this.cellSize), clickedRow = Math.floor(canvasCo.y / this.cellSize);
     console.log('CLICKED ROW COL:', clickedRow, clickedCol);
     if(clickedRow < this.row && clickedCol < this.col
-      && (this.cellColors[clickedRow][clickedCol] === this.colors[this.currentPlayer])
+      && (this.cellColors[clickedRow][clickedCol] === this.colors[this.currentPlayer].name)
       || (this.cellColors[clickedRow][clickedCol] === 'black')) {
       await this.updateCellsBFS(clickedRow, clickedCol);
       this.changePlayerTurn();
