@@ -38,7 +38,7 @@ export class GameComponent implements OnInit, AfterViewInit {
   transitions: any = [];
   cellColors: any = {};
 
-  players = 3;
+  players = 2;
   colors: any = [];
   currentPlayer = 0;
   hasAllPlayersClicked = false;
@@ -105,7 +105,8 @@ export class GameComponent implements OnInit, AfterViewInit {
       || (isEdge(r, c, this.row, this.col) && this.ballCount[r][c] > 2) || (this.ballCount[r][c] > 3));
   }
 
-  drawCircleInCell(r: number, c: number, color: string) {
+  // Refactor this function later for reducing lines
+  drawCirclesInCell(r: number, c: number, color: string) {
     if(this.ballCount[r][c] === 1) {
       this.contextService.drawCircle(this.ctx,
         {x: c * this.cellSize + this.cellSize / 2, y: r * this.cellSize + this.cellSize /  2},
@@ -134,7 +135,7 @@ export class GameComponent implements OnInit, AfterViewInit {
     for(let i = 0; i < this.cellsToUpdate.length; i++) {
       this.contextService.resetCell(this.ctx, this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.cellSize);
       this.updateCellColors(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c);
-      this.drawCircleInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.colors[this.currentPlayer].name);
+      this.drawCirclesInCell(this.cellsToUpdate[i].r, this.cellsToUpdate[i].c, this.colors[this.currentPlayer].name);
     }
   }
 
@@ -154,7 +155,7 @@ export class GameComponent implements OnInit, AfterViewInit {
       if(this.ballCount[r][c] > 0) {
         this.colors[this.currentPlayer].cellCount++;
       }
-      if(this.colors[prevColorInd].cellCount === 0) {
+      if(this.colors[prevColorInd].cellCount === 0 && prevColorInd !== this.currentPlayer) {
         this.colors.splice(prevColorInd, 1);
         if(this.colors.length === 1) {
           setTimeout(() => {
@@ -200,9 +201,9 @@ export class GameComponent implements OnInit, AfterViewInit {
 
   sweetAlert() {
     Swal.fire({
-      title: 'Error!',
-      text: 'Do you want to continue',
-      icon: 'error',
+      title: 'Game Over',
+      text: `${this.colors[this.currentPlayer].name} won !!`,
+      icon: 'success',
       confirmButtonText: 'Cool'
     })
   }

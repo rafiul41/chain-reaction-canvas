@@ -3,17 +3,21 @@
   display: flex;
   justify-content: center;
   flex-direction: row;
-}
+  .player-status {
+    position: absolute;
+  }
 
-#canvases-wrapper {
-  position: relative;
-}
+  #canvases-wrapper {
+    position: relative;
+    margin-top: 100px;
+  }
 
-#canvas {
-  position: absolute;
-}
+  #canvas {
+    position: absolute;
+  }
 
-#transition-canvas {
-  position: absolute;
-  z-index: -1;
+  #transition-canvas {
+    position: absolute;
+    z-index: -1;
+  }
 }
